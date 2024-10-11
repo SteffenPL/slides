@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html class="dark">
+
+<head>
+  <meta charset="utf-8">
+  <title>sEMTor – The EMT simulator</title>
+  <meta name="description" content="Interactive EMT simulator 
+  acompaning the article: 
+  Modelling variability and heterogeneity of EMT scenarios highlights nuclear positioning 
+  and protrusions as main drivers of extrusion by 
+  Steffen Plunder, Cathy Danesin, Bruno Glise, Marina A Ferreira, Sara Merino Aceituno and Eric Theveneau.
+  ">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="icon" href="data:,">
+</head>
+
+<body class="bg-white text-slate-900">
+  <div class="mx-auto p-4 bg-white">
+    <div class="container mx-auto max-w-4xl">
+
+        <div class="m-2 mb-0 rounded-lg bg-white p-2
+        dark:border-0">
+          <div id="simulation" class="text-slate-800">
+            <div class="mx-auto max-w-2xlw-full relative">
+              <p>
+                <span class="text-red-800 float-right text-xs font-thin">Apical side (red)
+                </span>
+                <span
+                  class="absolute left-4 top-10 font-bold text-red-800 text-xs md:text-xl bg-red-100 rounded-lg p-2 bg-opacity-50"
+                  id="sim_end" style="display: none;">Simulation
+                  end: Click to restart simulation.</span>
+              </p>
+              <div id="sim_div" class="bg-slate-50 touch-none"></div>
+              <div>
+                <p class="text-slate-800 float-right text-xs font-thin">Basal side (black)</p>
+                <p id="time" class="text-xs font-bold mx-4 font-mono"> Time = 10</p>
+              </div>
+
+              <div class="mx-4 relative text-slate-400 text-xs md:text-base" color="color: #Fff">
+                <span class=""> 0h </span>
+                <span class="left-1/4 absolute text-center"> 12h </span>
+                <span class="left-1/2 absolute text-center"> 24h </span>
+                <span class="left-3/4 absolute text-center"> 36h </span>
+                <span class="right-0 absolute"> 48h </span>
+              </div>
+              <div class="bg-slate-400 h-1 mx-4">
+                <div id="progress_bar" class="bg-slate-800 h-1 mr-auto" style="width:1%"></div>
+                <div class="relative text-xs md:text-base font-bold">
+                  <span style="left: 10%;" class="absolute text-orange-600" id="A_time"></span>
+                  <span style="left: 20%;" class="absolute text-black" id="B_time"></span>
+                  <span style="left: 50%;" class="absolute text-blue-600" id="S_time"></span>
+                </div>
+              </div>
+            </div>
+            <div class="w-full h-2">
+            </div>
+
+            <div class="flex flex-wrap mt-4 justify-center">
+              <div class="pl-2 mb-2 mt-2">
+                <button id="run_button"
+                  class="bg-green-800 hover:bg-green-600 text-white font-medium p-2 rounded-lg text-sm text-center inline-flex items-centerfont-medium">New
+                  simulation</button>
+              </div>
+              <div class="pl-2 mb-2 mt-2">
+                <button id="play_button"
+                  class="bg-indigo-500 hover:bg-indigo-600 text-white font-medium p-2 rounded-lg text-sm text-center inline-flex items-centerfont-medium">Play/Pause</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <script type="text/javascript" src="../../js/p5.min.js"></script>
+  <script type="text/javascript" src="../../js/tw-elements.umd.min.js"></script>
+  <script type="text/javascript" src="../../js/simulation.js"></script>
+  <script type="text/javascript" src="../interface_pse.js"></script>
+</body>
+
+</html>

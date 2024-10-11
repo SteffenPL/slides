@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.js"></script>
+</head>
+<body>
+</body>
+<script>
+    function arrowHead(start, vector) {
+        push();
+
+        var norm = createVector(vector.x, vector.y);
+        norm.normalize();
+
+        applyMatrix(
+        norm.x, norm.y,
+        -norm.y, norm.x,
+        start.x,
+        start.y);
+        triangle(0, 6, 12, 0, 0, -6);
+        pop();
+    }
+
+
+
+    let pos = [];
+    let f = [];
+    let type = [];
+    let pl = [];
+    let colors = [
+        [200, 0, 200, 150],
+        [0, 180, 0, 150],
+        [100, 100, 100, 100]
+    ]
+    let center;
+
+    const dt = 0.05;
+    let t = 0.0;
+
+    const p = {
+        rep: 1.2,
+        attract: [0.1, 0.1, 0.0],
+        R: 50.0,
+        R_attract: 80.0,
+        N: 60,
+        t_end: 26.0,
+        self_prop: 30.0,
+        noise: 0.0,
+        central_gravity: 0.0005,
+        align: [0.01,0.0],
+        cil: 0.001,
+        
+        display: {
+            f_scale: 1,
+            width: 600,
+            height: 400,
+            sX: 0.5,
+            sY: 0.5
+        }
+    }
+
+    function init() {
+        center = createVector(p.display.width / p.display.sX, p.display.height / p.display.sY).mult(0.5);
+
+        for(let i = 0; i < p.N; i++) {
+            type[i] = i % 2;
+            pos[i] = center.copy().add(p5.Vector.random2D().mult(p.R * 3));
+            pos[i].x = pos[i].x - 300 + (i % 2) * 200;
+            f[i] = createVector(0, 0);
+            pl[i] = p5.Vector.random2D();
+
+            pl[i].mult( type[i] );
+        }
+    }
+
+    function step() {
+        t += dt;
+
+        // reset
+        if( t > p.t_end ) {
+            t = 0.0;
+            init();
+        }
+
+        tmp = createVector(0, 0);
+        let right = createVector(1, 0);
+
+        const new_center = createVector(0, 0);
+
+        // simulate 
+        for(let i = 0; i < p.N; i++) {
+            new_center.add(pos[i]);
+            
+            f[i].set(pl[i]).mult(p.self_prop);
+            pl[i].rotate(random(-p.noise, p.noise));
+
+            const ct = type[i];
+            if( ct == 1 ) {
+                const alpha = right.angleBetween(pl[i]);
+                pl[i].rotate(-p.align[0] * alpha);
+            }
+
+
+            const cp = center.copy().sub(pos[i]);
+            cp.mult(cp.mag())
+            f[i].add(cp.mult(p.central_gravity));
+
+            for(let j = 0; j < p.N; j++) {
+                if(i != j) {
+                    let xij = p5.Vector.sub(pos[i], pos[j]);
+                    let r2 = xij.mag();
+
+                    if( r2 > 1e-6 ) {
+
+                        let overlap = 2 * p.R - r2;
+                        if( overlap > 0) {
+                            tmp.set(xij).mult(overlap * p.rep / r2);
+                            f[i].add(tmp);
+                        }
+
+                        let attr_overlap = 2 * p.R_attract - r2;
+                        if( attr_overlap > 0) {
+                            const at = (type[i] == type[j]) ? type[i] : 2;
+                            f[i].add(xij.mult(-attr_overlap * p.attract[at] / r2));
+                        }
+
+                    }
+                }
+            }
+
+            tmp.set(f[i]).mult(dt);
+            pos[i].add(tmp);
+
+
+            const beta = f[i].angleBetween(pl[i]);
+            pl[i].rotate(-p.cil * beta);
+        }
+
+        new_center.div(p.N);
+        center.set(new_center);
+    }
+
+    function setup() {
+        createCanvas(p.display.width, p.display.height);
+        init();
+    }
+
+    function setGradient(x, y, w, h, c1, c2, axis) {
+        noFill();
+
+        if (axis === 2) {
+            // Top to bottom gradient
+            for (let i = y; i <= y + h; i++) {
+            let inter = map(i, y, y + h, 0, 1);
+            let c = lerpColor(c1, c2, inter);
+            stroke(c);
+            line(x, i, x + w, i);
+            }
+        } else if (axis === 1) {
+            // Left to right gradient
+            for (let i = x; i <= x + w; i++) {
+            let inter = map(i, x, x + w, 0, 1);
+            let c = lerpColor(c1, c2, inter);
+            stroke(c);
+            line(i, y, i, y + h);
+            }
+        }
+    }
+
+    function draw() {
+        setGradient(0, 0, p.display.width, p.display.height, color(255,255,255), color(100,100,255), 1);
+
+        scale(p.display.sX, p.display.sY);
+
+        step();
+
+        tmp = createVector(0, 0);
+        
+        for(let i = 0; i < p.N; i++) {
+
+            noStroke();
+            fill(colors[type[i]]);
+            circle(pos[i].x, pos[i].y, 2*p.R);
+
+            stroke(0,0,255);
+            fill(0,0,255);
+            tmp.set(pl[i]).mult(p.R).add(pos[i]);
+            line(pos[i].x, pos[i].y, tmp.x, tmp.y);
+            arrowHead(tmp, pl[i]);
+
+            stroke(100,0,0);
+            fill(250,0,0);
+            tmp.set(f[i]).mult(p.display.f_scale).add(pos[i]);
+            line(pos[i].x, pos[i].y, tmp.x, tmp.y);
+            arrowHead(tmp, f[i]);
+        }
+    }
+</script>
+</script>

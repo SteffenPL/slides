@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html class="dark">
+
+<head>
+  <meta charset="utf-8">
+  <title>sEMTor – The EMT simulator</title>
+  <meta name="description" content="Interactive EMT simulator 
+  acompaning the article: 
+  Modelling variability and heterogeneity of EMT scenarios highlights nuclear positioning 
+  and protrusions as main drivers of extrusion by 
+  Steffen Plunder, Cathy Danesin, Bruno Glise, Marina A Ferreira, Sara Merino Aceituno and Eric Theveneau.
+  ">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="icon" href="data:,">
+</head>
+
+<body class="bg-slate-900 text-slate-100 flex min-h-screen">
+  <div class="mx-auto px-4 flex-grow  max-w-full">
+    <div class="flex flex-col max-w-full mx-auto min-h-screen">
+
+      <header class="container mx-auto max-w-4xl">
+        <div class="text-4xl font-semibold mb-4 mt-4 md:mb-8">
+          <a href="/"
+            class="bg-clip-text text-transparent bg-gradient-to-r from-green-500 to-red-500 dark:from-green-400 dark:to-red-400">
+            sEMTor – The EMT simulator
+          </a>
+          <hr class="h-px bg-gradient-to-r from-green-500 to-red-500 border-0 mt-1">
+        </div>
+      </header>
+
+      <main class="grow">
+        <div class="max-w-4xl mx-auto">
+
+          <div class="">
+            <span class="text-slate-400">Reference:</span>
+            <span class="font-semibold">
+              "Occurrence of non-apical mitoses at the primitive streak, induced by relaxation of actomyosin and
+              acceleration of the cell cycle, contributes to cell delamination during mouse gastrulation"
+            </span>
+          </div>
+          <div class="italic text-slate-400">
+            Evangéline Despin-Guitard, Steffen Plunder, Navrita Mathiah, Eric Theveneau and Isabelle Migeotte, 2024,
+            <a href="https://www.biorxiv.org/content/10.1101/2024.01.24.577096v1" target="_blank"
+              class="underline">bioRxiv</a>.
+          </div>
+
+          <div class="space-y-2 my-4 text-sm">
+            <div class="">
+              An interactive, agent-based model to simulate epithelial-to-mesenchymal transition-like events in a short
+              pseudostratified epithelium.
+            </div>
+            <div>
+              The simulation represents primitive streak (PS)-like cells (magenta) at the center of a control epiblast
+              (green). The following cellular events/parameters are available:
+            </div>
+            <ul class="list-none list-inside  my-4 space-y-2">
+              <li>→ Attachment to the basal line in PS cells can be turned on/off. When “off”, PS cells will detach from the
+                basal line in an asynchronous manner between 6 to 24h of  simulation time.
+              </li>
+              <li>
+                → In addition, total cell cycle length, cumulative duration of G2 and M phases, contractility of springs
+                controlling interkinetic nuclear movements (INM) and apical adhesion can be adjusted per cell type.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 max-w-screen-2xl mx-auto">
+          <div class="rounded-lg ring-red-800 ring-2 p-2 mt-2 mb-8 italic">
+            Note: Our scientific conclusions from the model are based on statistics obtained from thousands of
+            simulations
+            of the model shown below. Please note that in some instances, single simulations can differ substantially
+            from
+            the average behavior.
+          </div>
+
+          <div class="">
+            <div class="m-2 mb-0 rounded-lg bg-white p-2 
+          border-slate-200 border-2
+          dark:border-0">
+              <div id="simulation" class="text-slate-800">
+                <div class="mx-auto w-full relative">
+                  <p>
+                    <span class="font-semibold italic">Simulation</span>
+                    <span class="text-red-800 float-right text-xs font-thin">Apical side (red)
+                    </span>
+                    <span
+                      class="absolute left-4 top-10 font-bold text-red-800 text-xs md:text-xl bg-red-100 rounded-lg p-2 bg-opacity-50"
+                      id="sim_end" style="display: none;">Simulation
+                      end: Click to restart simulation.</span>
+                  </p>
+                  <div id="sim_div" class="bg-slate-50 touch-none"></div>
+                  <div>
+                    <p class="text-slate-800 float-right text-xs font-thin">Basal side (black)</p>
+                    <p id="time" class="text-xs font-bold mx-4 font-mono"> Time = 10</p>
+                  </div>
+
+                  <div class="mx-4 relative text-slate-400 text-xs md:text-base">
+                    <span class=""> 0h </span>
+                    <span class="left-1/4 absolute text-center"> 12h </span>
+                    <span class="left-1/2 absolute text-center"> 24h </span>
+                    <span class="left-3/4 absolute text-center"> 36h </span>
+                    <span class="right-0 absolute"> 48h </span>
+                  </div>
+                  <div class="bg-slate-400 h-1 mx-4">
+                    <div id="progress_bar" class="bg-slate-800 h-1 mr-auto" style="width:1%"></div>
+                    <div class="relative text-xs md:text-base font-bold">
+                      <span style="left: 10%;" class="absolute text-orange-600 hidden" id="A_time">A</span>
+                      <span style="left: 20%;" class="absolute text-black hidden" id="B_time">B</span>
+                      <span style="left: 50%;" class="absolute text-blue-600 hidden" id="S_time">S</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="w-full h-2">
+                </div>
+
+                <div class="flex flex-wrap mt-4 justify-center">
+                  <div class="pl-2 mb-2 mt-2">
+                    <button id="run_button"
+                      class="bg-green-800 hover:bg-green-600 text-white font-medium p-2 rounded-lg text-sm text-center inline-flex items-centerfont-medium">New
+                      simulation</button>
+                  </div>
+                  <div class="pl-2 mb-2 mt-2">
+                    <button id="play_button"
+                      class="bg-indigo-500 hover:bg-indigo-600 text-white font-medium p-2 rounded-lg text-sm text-center inline-flex items-centerfont-medium">Play/Pause</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="m-2 mt-0 p-2">
+              <div id="parameters" class="container mx-auto">
+                <h2 class="m-2 text-center font-medium italic">Parameters 
+                  <span id="reset" class="font-light pl-4 hover:cursor-pointer">(<span class="underline-offset-2 hover:underline">reset</span>)</span>
+                </h2>
+
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+
+                  
+<div class="dark:bg-slate-800 rounded-lg border-t-2 border-slate-200 dark:border-slate-500 md:col-span-1 col-span-1 lg:col-span-1">
+    <div class="container pt-2">
+        <div class="p-1 my-2 mx-4">
+            <div class="text-center font-bold">
+                Attachment to basal line
+            </div>
+
+                  <div class="grid grid-cols-2 mx-6 my-2 gap-y-2">
+                    <div>PS cells</div>
+                    <div>
+<div class="flex items-center space-x-4">
+    <span class="">off</span> 
+    <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="ps_attached" name="ps_attached"  class="sr-only peer">
+        <div
+            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+        </div>
+    </label>
+    <span>on</span>
+</div>
+</div>
+                  </div>
+                  
+        </div>
+    </div>
+</div>
+
+
+
+                  
+<div class="dark:bg-slate-800 rounded-lg border-t-2 border-slate-200 dark:border-slate-500 md:col-span-1 col-span-1 lg:col-span-1">
+    <div class="container pt-2">
+        <div class="p-1 my-2 mx-4">
+            <div class="text-center font-bold">
+                Cell cycle
+            </div>
+
+                  <div class="italic font-bold mt-8">
+                    Total cell cycle duration
+                  </div>
+                  <div class="grid grid-cols-2 mx-6 my-2 gap-y-2">
+                    <div>Epiblast cells</div>
+                    <div>
+<div class="flex items-center space-x-4">
+    <span class="">3h</span> 
+    <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="epi_cc_duration" name="epi_cc_duration" checked class="sr-only peer">
+        <div
+            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+        </div>
+    </label>
+    <span>6h</span>
+</div>
+</div>
+                    <div>PS cells</div>
+                    <div>
+<div class="flex items-center space-x-4">
+    <span class="">3h</span> 
+    <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="ps_cc_duration" name="ps_cc_duration"  class="sr-only peer">
+        <div
+            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+        </div>
+    </label>
+    <span>6h</span>
+</div>
+</div>
+                  </div>
+                  <div class="italic font-bold mt-8">
+                    G2+M duration
+                  </div>
+                  <div class="grid grid-cols-2 mx-6 my-2 gap-y-2">
+                    <div>Epiblast cells</div>
+                    <div>
+<div class="flex items-center space-x-4">
+    <span class="">0.5h</span> 
+    <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="epi_div_duration" name="epi_div_duration" checked class="sr-only peer">
+        <div
+            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+        </div>
+    </label>
+    <span>1h</span>
+</div>
+</div>
+                    <div>PS cells</div>
+                    <div>
+<div class="flex items-center space-x-4">
+    <span class="">0.5h</span> 
+    <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="ps_div_duration" name="ps_div_duration" checked class="sr-only peer">
+        <div
+            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+        </div>
+    </label>
+    <span>1h</span>
+</div>
+</div>
+                  </div>
+                  
+        </div>
+    </div>
+</div>
+
+
+
+                  
+<div class="dark:bg-slate-800 rounded-lg border-t-2 border-slate-200 dark:border-slate-500 md:col-span-2 col-span-1 lg:col-span-1">
+    <div class="container pt-2">
+        <div class="p-1 my-2 mx-4">
+            <div class="text-center font-bold">
+                Contractility
+            </div>
+
+                  <div class="grid grid-cols-3 grid-flow-row mx-6 gap-y-2 mt-4">
+                    <div></div>
+                    <div class="italic font-bold text-green-400 text-center">
+                      Epiblast cells
+                    </div>
+                    <div class="italic font-bold text-purple-400 text-center">
+                      PS cells
+                    </div>
+
+                    <div class="">Control</div>
+                    <div class="mx-auto">
+<div class="mb-[0.125rem] mr-4 inline-block min-h-[1.5rem] pl-[1.5rem]">
+    <input
+      class="relative float-left -ml-[1.5rem] mr-1 mt-0.5 h-5 w-5 appearance-none rounded-full border-2 border-solid border-neutral-300 before:pointer-events-none before:absolute before:h-4 before:w-4 before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] after:absolute after:z-[1] after:block after:h-4 after:w-4 after:rounded-full after:content-[''] checked:border-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2 checked:after:h-[0.625rem] checked:after:w-[0.625rem] checked:after:rounded-full checked:after:border-primary checked:after:bg-primary checked:after:content-[''] checked:after:[transform:translate(-50%,-50%)] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:border-primary checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:border-neutral-600 dark:checked:border-primary dark:checked:after:border-primary dark:checked:after:bg-blue-300 dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:border-primary dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
+      type="radio"
+      name="epi_contract"
+      id="epi_ct_ctrl"
+      value="[3.0, 2.0, 2.0]" 
+      checked/>
+    <label
+      class="mt-px inline-block pl-[0.15rem] hover:cursor-pointer"
+      for="epi_ct_ctrl"
+      ></label
+    >
+  </div>
+
+                    </div>
+                    <div class="mx-auto">
+<div class="mb-[0.125rem] mr-4 inline-block min-h-[1.5rem] pl-[1.5rem]">
+    <input
+      class="relative float-left -ml-[1.5rem] mr-1 mt-0.5 h-5 w-5 appearance-none rounded-full border-2 border-solid border-neutral-300 before:pointer-events-none before:absolute before:h-4 before:w-4 before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] after:absolute after:z-[1] after:block after:h-4 after:w-4 after:rounded-full after:content-[''] checked:border-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2 checked:after:h-[0.625rem] checked:after:w-[0.625rem] checked:after:rounded-full checked:after:border-primary checked:after:bg-primary checked:after:content-[''] checked:after:[transform:translate(-50%,-50%)] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:border-primary checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:border-neutral-600 dark:checked:border-primary dark:checked:after:border-primary dark:checked:after:bg-blue-300 dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:border-primary dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
+      type="radio"
+      name="ps_contract"
+      id="ps_ct_ctrl"
+      value="[0.25, 2.0, 2.0]" 
+      checked/>
+    <label
+      class="mt-px inline-block pl-[0.15rem] hover:cursor-pointer"
+      for="ps_ct_ctrl"
+      ></label
+    >
+  </div>
+
+                    </div>
+
+                    <div>All springs relaxed</div>
+                    <div class="mx-auto">
+<div class="mb-[0.125rem] mr-4 inline-block min-h-[1.5rem] pl-[1.5rem]">
+    <input
+      class="relative float-left -ml-[1.5rem] mr-1 mt-0.5 h-5 w-5 appearance-none rounded-full border-2 border-solid border-neutral-300 before:pointer-events-none before:absolute before:h-4 before:w-4 before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] after:absolute after:z-[1] after:block after:h-4 after:w-4 after:rounded-full after:content-[''] checked:border-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2 checked:after:h-[0.625rem] checked:after:w-[0.625rem] checked:after:rounded-full checked:after:border-primary checked:after:bg-primary checked:after:content-[''] checked:after:[transform:translate(-50%,-50%)] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:border-primary checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:border-neutral-600 dark:checked:border-primary dark:checked:after:border-primary dark:checked:after:bg-blue-300 dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:border-primary dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
+      type="radio"
+      name="epi_contract"
+      id="epi_ct_all"
+      value="[0.25,0.25,0.25]" 
+      />
+    <label
+      class="mt-px inline-block pl-[0.15rem] hover:cursor-pointer"
+      for="epi_ct_all"
+      ></label
+    >
+  </div>
+</div>
+                    <div class="mx-auto">
+<div class="mb-[0.125rem] mr-4 inline-block min-h-[1.5rem] pl-[1.5rem]">
+    <input
+      class="relative float-left -ml-[1.5rem] mr-1 mt-0.5 h-5 w-5 appearance-none rounded-full border-2 border-solid border-neutral-300 before:pointer-events-none before:absolute before:h-4 before:w-4 before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] after:absolute after:z-[1] after:block after:h-4 after:w-4 after:rounded-full after:content-[''] checked:border-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2 checked:after:h-[0.625rem] checked:after:w-[0.625rem] checked:after:rounded-full checked:after:border-primary checked:after:bg-primary checked:after:content-[''] checked:after:[transform:translate(-50%,-50%)] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:border-primary checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:border-neutral-600 dark:checked:border-primary dark:checked:after:border-primary dark:checked:after:bg-blue-300 dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:border-primary dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
+      type="radio"
+      name="ps_contract"
+      id="ps_ct_all"
+      value="[0.25,0.25,0.25]" 
+      />
+    <label
+      class="mt-px inline-block pl-[0.15rem] hover:cursor-pointer"
+      for="ps_ct_all"
+      ></label
+    >
+  </div>
+</div>
+
+                    <div>INM springs relaxed</div>
+                    <div class="mx-auto">
+<div class="mb-[0.125rem] mr-4 inline-block min-h-[1.5rem] pl-[1.5rem]">
+    <input
+      class="relative float-left -ml-[1.5rem] mr-1 mt-0.5 h-5 w-5 appearance-none rounded-full border-2 border-solid border-neutral-300 before:pointer-events-none before:absolute before:h-4 before:w-4 before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] after:absolute after:z-[1] after:block after:h-4 after:w-4 after:rounded-full after:content-[''] checked:border-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2 checked:after:h-[0.625rem] checked:after:w-[0.625rem] checked:after:rounded-full checked:after:border-primary checked:after:bg-primary checked:after:content-[''] checked:after:[transform:translate(-50%,-50%)] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:border-primary checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:border-neutral-600 dark:checked:border-primary dark:checked:after:border-primary dark:checked:after:bg-blue-300 dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:border-primary dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
+      type="radio"
+      name="epi_contract"
+      id="epi_ct_inm"
+      value="[0.25,0.25, 2.0]" 
+      />
+    <label
+      class="mt-px inline-block pl-[0.15rem] hover:cursor-pointer"
+      for="epi_ct_inm"
+      ></label
+    >
+  </div>
+</div>
+                    <div class="mx-auto">
+<div class="mb-[0.125rem] mr-4 inline-block min-h-[1.5rem] pl-[1.5rem]">
+    <input
+      class="relative float-left -ml-[1.5rem] mr-1 mt-0.5 h-5 w-5 appearance-none rounded-full border-2 border-solid border-neutral-300 before:pointer-events-none before:absolute before:h-4 before:w-4 before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] after:absolute after:z-[1] after:block after:h-4 after:w-4 after:rounded-full after:content-[''] checked:border-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2 checked:after:h-[0.625rem] checked:after:w-[0.625rem] checked:after:rounded-full checked:after:border-primary checked:after:bg-primary checked:after:content-[''] checked:after:[transform:translate(-50%,-50%)] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:border-primary checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:border-neutral-600 dark:checked:border-primary dark:checked:after:border-primary dark:checked:after:bg-blue-300 dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:border-primary dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
+      type="radio"
+      name="ps_contract"
+      id="ps_ct_inm"
+      value="[0.25,0.25, 2.0]" 
+      />
+    <label
+      class="mt-px inline-block pl-[0.15rem] hover:cursor-pointer"
+      for="ps_ct_inm"
+      ></label
+    >
+  </div>
+</div>
+
+                    <div>Apical springs relaxed</div>
+                    <div class="mx-auto">
+<div class="mb-[0.125rem] mr-4 inline-block min-h-[1.5rem] pl-[1.5rem]">
+    <input
+      class="relative float-left -ml-[1.5rem] mr-1 mt-0.5 h-5 w-5 appearance-none rounded-full border-2 border-solid border-neutral-300 before:pointer-events-none before:absolute before:h-4 before:w-4 before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] after:absolute after:z-[1] after:block after:h-4 after:w-4 after:rounded-full after:content-[''] checked:border-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2 checked:after:h-[0.625rem] checked:after:w-[0.625rem] checked:after:rounded-full checked:after:border-primary checked:after:bg-primary checked:after:content-[''] checked:after:[transform:translate(-50%,-50%)] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:border-primary checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:border-neutral-600 dark:checked:border-primary dark:checked:after:border-primary dark:checked:after:bg-blue-300 dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:border-primary dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
+      type="radio"
+      name="epi_contract"
+      id="epi_ct_api"
+      value="[3.0, 2.0, 0.25]" 
+      />
+    <label
+      class="mt-px inline-block pl-[0.15rem] hover:cursor-pointer"
+      for="epi_ct_api"
+      ></label
+    >
+  </div>
+</div>
+                    <div class="mx-auto">
+<div class="mb-[0.125rem] mr-4 inline-block min-h-[1.5rem] pl-[1.5rem]">
+    <input
+      class="relative float-left -ml-[1.5rem] mr-1 mt-0.5 h-5 w-5 appearance-none rounded-full border-2 border-solid border-neutral-300 before:pointer-events-none before:absolute before:h-4 before:w-4 before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] after:absolute after:z-[1] after:block after:h-4 after:w-4 after:rounded-full after:content-[''] checked:border-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2 checked:after:h-[0.625rem] checked:after:w-[0.625rem] checked:after:rounded-full checked:after:border-primary checked:after:bg-primary checked:after:content-[''] checked:after:[transform:translate(-50%,-50%)] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:border-primary checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:border-neutral-600 dark:checked:border-primary dark:checked:after:border-primary dark:checked:after:bg-blue-300 dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:border-primary dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
+      type="radio"
+      name="ps_contract"
+      id="ps_ct_api"
+      value="[0.25, 2.0, 0.25]" 
+      />
+    <label
+      class="mt-px inline-block pl-[0.15rem] hover:cursor-pointer"
+      for="ps_ct_api"
+      ></label
+    >
+  </div>
+</div>
+                  </div>
+                  <div class="italic text-sm font-light text-slate-200 mx-6 mt-2">
+                    Note: Control settings for PS cells correspond to a partial relaxation of INM springs.
+                  </div>
+                  
+        </div>
+    </div>
+</div>
+
+
+                </div>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </main>
+
+      <div class="mx-auto max-w-xl w-full my-4">
+        <div class="text-center font-semibold italic mb-2">
+          Spring strengths
+        </div>
+        <div class="grid grid-cols-3 grid-flow-row mx-6 p-2 gap-y-2 border-t-2 border-slate-600 rounded-lg">
+          <div class=""></div>
+          <div class="italic font-bold text-green-400 text-center">
+            Epiblast cells
+          </div>
+          <div class="italic font-bold text-purple-400 text-center">
+            PS cells
+          </div>
+          <div>
+            Apical-Nuclei (INM)
+          </div>
+          <div id="epi_aN" class=" text-center">
+            2
+          </div>
+          <div id="ps_aN" class=" text-center">
+            2
+          </div>
+          <div>
+            Basal-Nuclei (INM)
+          </div>
+          <div id="epi_bN" class=" text-center">
+            2
+          </div>
+          <div id="ps_bN" class=" text-center">
+            2
+          </div>
+          <div>
+            Apical-Apical
+          </div>
+          <div id="epi_aa" class=" text-center">
+            2
+          </div>
+          <div id="ps_aa" class=" text-center">
+            2
+          </div>
+        </div>
+      </div>
+      
+      <footer class="h-12 mt-4 max-w-4xl w-full mx-auto bg-slate-900">
+        <hr class="h-px bg-gradient-to-r from-green-500 to-red-500 border-0">
+        <div class="text-sm text-slate-200 mt-2 flex justify-center">
+          <div>
+            <a property="dct:title" rel="cc:attributionURL" class="text-green-400 hover:text-green-200"
+              href="https://semtor.github.io">sEMTor</a> by
+            <a rel="cc:attributionURL dct:creator" property="cc:attributionName"
+              class="text-green-400 hover:text-green-200" href="https://github.com/SteffenPL">Steffen Plunder</a>
+            is licensed under <a href="http://creativecommons.org/licenses/by/4.0/?ref=chooser-v1"
+              class="text-green-400 hover:text-green-200" target="_blank" rel="license noopener noreferrer">
+              CC BY 4.0</a>
+          </div>
+          <div>
+            <img class="h-5 ml-1 align-text-bottom"
+              src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1">
+          </div>
+          <div>
+            <img class="h-5 ml-1 align-text-bottom"
+              src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1">
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="/js/p5.min.js"></script>
+  <script type="text/javascript" src="/js/tw-elements.umd.min.js"></script>
+  <script type="text/javascript" src="/js/simulation.js"></script>
+  <script type="text/javascript" src="interface.js"></script>
+</body>
+
+</html>

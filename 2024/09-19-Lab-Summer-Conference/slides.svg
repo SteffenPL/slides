@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="1920"
+   height="1080"
+   viewBox="0 0 508 285.75"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3.2 (1:1.3.2+202311252150+091e20ef0f)"
+   sodipodi:docname="slides.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="0.60473466"
+     inkscape:cx="909.48979"
+     inkscape:cy="533.29174"
+     inkscape:window-width="2048"
+     inkscape:window-height="1084"
+     inkscape:window-x="2048"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer3" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Title"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="display:none">
+    <text
+       xml:space="preserve"
+       style="font-size:16.9333px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O, Normal';font-variant-ligatures:none;fill:#3465a4;stroke-width:0.264583"
+       x="98.976021"
+       y="44.026833"
+       id="text1"><tspan
+         sodipodi:role="line"
+         id="tspan1"
+         style="font-weight:normal;fill:#3465a4;stroke-width:0.264583"
+         x="98.976021"
+         y="44.026833">BiMed-Lab Group Summer Conference 2024</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16.9333px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O, Normal';font-variant-ligatures:none;stroke-width:0.264583"
+       x="43.739822"
+       y="95.880112"
+       id="text3"><tspan
+         sodipodi:role="line"
+         id="tspan3"
+         style="stroke-width:0.264583"
+         x="43.739822"
+         y="95.880112"><tspan
+           style="font-style:italic"
+           id="tspan4">200 years old and still relevant: </tspan><tspan
+           style="font-weight:bold"
+           id="tspan7">The Gauss-Seidel principle.</tspan></tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16.9333px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O, Normal';font-variant-ligatures:none;stroke-width:0.264583"
+       x="199.49185"
+       y="176.34343"
+       id="text6"><tspan
+         sodipodi:role="line"
+         id="tspan6"
+         style="font-weight:normal;stroke-width:0.264583"
+         x="199.49185"
+         y="176.34343">Steffen Plunder</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:11.2889px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O, Normal';font-variant-ligatures:none;stroke-width:0.264583"
+       x="253.51457"
+       y="199.47386"
+       id="text8"><tspan
+         sodipodi:role="line"
+         id="tspan8"
+         style="font-weight:normal;font-size:11.2889px;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="253.51457"
+         y="199.47386">19<tspan
+   style="font-size:11.2889px;text-align:center;baseline-shift:super;text-anchor:middle"
+   id="tspan9">th</tspan> September 2024</tspan><tspan
+         sodipodi:role="line"
+         style="font-weight:normal;font-size:11.2889px;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="253.51457"
+         y="213.58499"
+         id="tspan10">Kyoto</tspan></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Intro" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="Gauss-Seidel" />
+</svg>

@@ -1,0 +1,35 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Ubuntu", sans-serif;
+  background-color: #fff;
+  color: #eee;
+}
+
+h1 {
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 400;
+  text-align: center;
+}
+
+canvas {
+  display: block;
+  margin: auto;
+  border: 0px solid #ccc;
+}
+
+.pure-g > div {
+  box-sizing: border-box;
+}
+.l-box {
+  padding: 1em;
+  padding-top: 1em;
+}
+
+.tweakpane {
+  margin: auto;
+  margin-top: 1em;
+  width: 80%;
+  max-width: 400px;
+}
