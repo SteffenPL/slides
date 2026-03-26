@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>my p5.js sketch</title>
+
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css"
+      integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/grids-responsive-min.css"
+    />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/base-min.css">
+
+
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.2.0/lib/p5.js"></script>
+    <script src="p5utils.mjs"></script>
+    <script src="script.js"></script>
+  </head>
+
+
+  <body>
+    <div class="pure-g">
+      <div class="pure-u-1 pure-u-md-1-2 l-box">
+        <div id="sketch-holder">
+          <!-- Our sketch will go here! -->
+        </div>  
+      </div class="pure-u-1 pure-u-md-1-2 l-box">
+        <div id="tweakpane-holder" class="tweakpane">
+          <!-- Our tweakpane will go here! -->
+        </div>
+      </div>  
+    </div>
+
+    <script type="module">
+      import {Pane} from 'https://cdn.jsdelivr.net/npm/tweakpane@4.0.0/dist/tweakpane.min.js';
+      //import {simulation, p} from './script.mjs';
+
+      const sim = new p5(simulation, "sketch-holder");
+
+      const pane = new Pane({
+        title: "Parameters",
+        container: document.getElementById('tweakpane-holder'),
+      });
+
+      pane.addBinding(p, 'log_dt', {
+        label: 'dt (log scale)',
+        min: -2,
+        max: 1,
+      }).on('change', (ev) => {
+        p.dt = Math.pow(10, ev.value);
+      });
+
+
+      pane.addBinding(p, 'alg', {
+        options: {
+          pbd: 0,
+          penalty: 2
+        },
+      });
+
+      pane.addBinding(p, 'N', {
+        min: 1,
+        max: 100,
+        step: 1,
+      });
+
+      pane.addBinding(p, 'R', {
+        min: 1,
+        max: 10,
+        step: 1,
+      });
+
+      pane.addBinding(p, 'alpha', {
+        min: 0,
+        max: 10,
+        step: 0.1,
+      });
+
+      pane.addBinding(p, 'penalty_strength', {
+        min: 0,
+        max: 4,
+        step: 0.1,
+      });
+      pane.addButton({
+        title: 'Restart',
+      }).on('click', () => {
+        sim.init();
+      });
+
+
+      
+    </script>
+  </body>
+</html>

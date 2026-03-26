@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.js"></script>
+</head>
+<body>
+</body>
+<script>
+    function arrowHead(start, vector) {
+        push();
+
+        var norm = createVector(vector.x, vector.y);
+        norm.normalize();
+
+        applyMatrix(
+        norm.x, norm.y,
+        -norm.y, norm.x,
+        start.x,
+        start.y);
+        triangle(0, 6, 12, 0, 0, -6);
+        pop();
+    }
+
+
+
+    let pos = [];
+    let f = [];
+    let type = [];
+    let pl = [];
+    let colors = [
+        [200, 0, 200, 100],
+        [0, 180, 0, 100],
+        [100, 100, 100, 100]
+    ]
+    let center;
+
+    const dt = 0.05;
+    let t = 0.0;
+
+    const p = {
+        rep: 1.1,
+        attract: [0.1, 0.3, 0.2],
+        eta: [0.0, 0.9],
+        R: 50.0,
+        R_attract: 80.0,
+        N: [100, 200],
+        t_end: 26.0,
+        self_prop: 0.0,
+        noise: 0.0,
+        central_gravity: 0.00,
+        align: [0.01,0.0],
+        cil: 0.001,
+
+        init_type: "band",
+        
+        R_bnd: 20,
+        bnd_attract: 0.0,
+
+        periodic: true,
+        
+        display: {
+            f_scale: 2,
+            width: 600,
+            height: 400,
+            sX: 0.25,
+            sY: 0.25
+        }
+    }
+
+    function init() {
+        const w = p.display.width / p.display.sX; 
+        const h = p.display.height / p.display.sY;
+
+        center = createVector(w, h).mult(0.5);
+        
+        for(let i = 0; i < (p.N[0] + p.N[1]); i++) {
+            type[i] = (i < p.N[0]) ? 0 : 1;
+
+            if( p.init_type == "sphere") {
+                pos[i] = center.copy().add(p5.Vector.random2D().mult(p.R * 3));
+                pos[i].x = pos[i].x // - 100 + (i % 2) * 200;
+            }
+
+            if( p.init_type == "band") {
+                pos[i] = createVector(w/2 + (-0.5 + random())*w/10, random()*h);
+            } 
+
+            if( p.init_type == "rev_band") {
+                pos[i] = createVector(w/2 + (-0.5 + random())*w/2 - type[i] * 100, random()*h);
+            } 
+            
+            
+            f[i] = createVector(0, 0);
+            pl[i] = p5.Vector.random2D();
+
+            pl[i].mult( type[i] );
+        }
+
+        p.w = w;
+        p.h = h;
+    }
+
+    function step() {
+        t += dt;
+
+        // reset
+        if( t > p.t_end ) {
+            t = 0.0;
+            init();
+        }
+
+        tmp = createVector(0, 0);
+        let right = createVector(1, 0);
+
+        const new_center = createVector(0, 0);
+
+        const Nt = p.N[0] + p.N[1]
+
+        // simulate 
+        for(let i = 0; i < Nt; i++) {
+            const ci = type[i];                    
+            new_center.add(pos[i]);
+            
+            f[i].set(pl[i]).mult(p.self_prop);
+            
+            // pl[i].rotate(random(-p.noise, p.noise));
+
+            const ct = type[i];
+            if( ct == 1 ) {
+                const alpha = right.angleBetween(pl[i]);
+                // pl[i].rotate(-p.align[0] * alpha);
+                pl[i].set(right);
+            }
+
+            // boundary force 
+            let bnd_overlap = pos[i].y - p.R_bnd;  // from bnd to point
+            if( bnd_overlap < 0 && pos[i].y > 0 ){
+                f[i].y -= p.bnd_attract;
+            }
+            
+            bnd_overlap = pos[i].y - (p.h - p.R_bnd);  // from bnd to point
+            if( bnd_overlap > 0 && pos[i].y < p.h){
+                f[i].y += p.bnd_attract;
+            }
+            
+
+
+            // const cp = center.copy().sub(pos[i]);
+            // cp.mult(cp.mag())
+            // f[i].add(cp.mult(p.central_gravity));
+
+            for(let j = 0; j < Nt; j++) {
+                if(i != j) {
+                    const cj = type[j];
+                    
+                    let xij = p5.Vector.sub(pos[i], pos[j]);
+
+                    let r2_o = xij.mag();
+
+                    if( p.periodic ) {
+                        if( xij.y < p.h/2) {
+                            xij.y += p.h;
+                        }
+
+                        if( xij.y > p.h/2) {
+                            xij.y -= p.h;
+                        }
+                    }
+
+                    let r2 = xij.mag();
+
+                    let xijw = xij.dot(right) / r2;
+
+                    if( r2 > 1e-6 ) {
+
+                        let overlap = 2 * p.R - r2;
+                        if( overlap > 0) {
+                            tmp.set(xij).mult(overlap * p.rep / r2);
+                            f[i].add(tmp);
+                        }
+
+                        let attr_overlap = 2 * p.R_attract - r2;
+                        if( attr_overlap > 0) {
+                            const at = (type[i] == type[j]) ? type[i] : 2;
+                            
+                            
+                            const factor = p.attract[at] * (1 - p.eta[ci] * xijw) * (1 + p.eta[cj] * xijw)
+
+                            f[i].add(xij.mult(-attr_overlap * factor / r2));
+
+                            if( r2_o < 2 * p.R_attract) {
+                                stroke(150,50,0,200);
+                                strokeWeight(2000 * factor*factor*factor / p.attract[at] / r2);
+                                tmp.set(f[i]).mult(p.display.f_scale).add(pos[i]);
+                                line(pos[i].x, pos[i].y, pos[j].x, pos[j].y);
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+
+
+        for(let i = 0; i < Nt; i++) {
+
+            tmp.set(f[i]).mult(dt);
+            pos[i].add(tmp);
+
+            if( p.noise > 0 ) {
+                pos[i].add( p5.Vector.random2D().mult(p.noise * random() * sqrt(dt)) )
+            }
+
+            if( pos[i].y < 0) {
+                pos[i].y += p.h;
+            }
+
+            if( pos[i].y > p.h) {
+                pos[i].y -= p.h;
+            }
+
+            // const beta = f[i].angleBetween(pl[i]);
+            // pl[i].rotate(-p.cil * beta);
+        }
+
+        new_center.div(Nt);
+        center.set(new_center);
+    }
+
+    function setup() {
+        createCanvas(p.display.width, p.display.height);
+        init();
+    }
+
+    function setGradient(x, y, w, h, c1, c2, axis) {
+        noFill();
+
+        if (axis === 2) {
+            // Top to bottom gradient
+            for (let i = y; i <= y + h; i++) {
+            let inter = map(i, y, y + h, 0, 1);
+            let c = lerpColor(c1, c2, inter);
+            stroke(c);
+            line(x, i, x + w, i);
+            }
+        } else if (axis === 1) {
+            // Left to right gradient
+            for (let i = x; i <= x + w; i++) {
+            let inter = map(i, x, x + w, 0, 1);
+            let c = lerpColor(c1, c2, inter);
+            stroke(c);
+            line(i, y, i, y + h);
+            }
+        }
+    }
+
+    function draw() {
+        setGradient(0, 0, p.display.width, p.display.height, color(255,255,255), color(200,200,200), 1);
+
+        scale(p.display.sX, p.display.sY);
+
+        step();
+
+        tmp = createVector(0, 0);
+        
+        strokeWeight(2);
+        for(let i = 0; i < (p.N[0] + p.N[1]); i++) {
+
+            noStroke();
+            fill(colors[type[i]]);
+            circle(pos[i].x, pos[i].y, 2*p.R);
+
+            if( p.periodic ) {
+                noStroke();
+                fill(colors[type[i]]);
+                circle(pos[i].x, pos[i].y - p.h, 2*p.R);
+                noStroke();
+                fill(colors[type[i]]);
+                circle(pos[i].x, pos[i].y + p.h, 2*p.R);
+            }
+
+            // stroke(0,0,255);
+            // fill(0,0,255);
+            // tmp.set(pl[i]).mult(p.R).add(pos[i]);
+            // line(pos[i].x, pos[i].y, tmp.x, tmp.y);
+            // arrowHead(tmp, pl[i]);
+
+            stroke(0,0,200);
+            fill(0,0,2000);
+            tmp.set(f[i]).mult(p.display.f_scale).add(pos[i]);
+            line(pos[i].x, pos[i].y, tmp.x, tmp.y);
+            arrowHead(tmp, f[i]);
+        }
+
+    }
+</script>
+</script>

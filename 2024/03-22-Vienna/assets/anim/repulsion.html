@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.js"></script>
+</head>
+<body>
+</body>
+<script>
+    function arrowHead(start, vector) {
+        push();
+
+        var norm = createVector(vector.x, vector.y);
+        norm.normalize();
+
+        applyMatrix(
+        norm.x, norm.y,
+        -norm.y, norm.x,
+        start.x,
+        start.y);
+        triangle(0, 6, 12, 0, 0, -6);
+        pop();
+    }
+
+
+
+    let pos = [];
+    let f = [];
+    let colors = [
+        [200, 0, 200, 200],
+        [0, 200, 0, 200],
+        [100, 100, 100, 100]
+    ]
+
+    const dt = 0.1;
+    let t = 0.0;
+
+    const p = {
+        rep: 200.0,
+        R: 100.0,
+        N: 3,
+        t_end: 16.0,
+
+        display: {
+            f_scale: 10,
+        }
+    }
+
+    function init() {
+        for(let i = 0; i < p.N; i++) {
+            pos[i] = createVector(80 + i * 40, 100 + random(-20,20));
+            f[i] = createVector(0, 0);
+        }
+    }
+
+    function step() {
+        t += dt;
+
+        // reset
+        if( t > p.t_end ) {
+            t = 0.0;
+            init();
+        }
+
+        tmp = createVector(0, 0);
+
+        // simulate 
+        for(let i = 0; i < p.N; i++) {
+            f[i].set(0, 0);
+            for(let j = 0; j < p.N; j++) {
+                if(i != j) {
+                    let r = p5.Vector.sub(pos[i], pos[j]);
+                    let r2 = r.magSq();
+                    if( r2 < p.R * p.R) {
+                        f[i].add(r.mult(p.rep / r2));
+                    }
+                }
+            }
+
+            tmp.set(f[i]).mult(dt);
+            pos[i].add(tmp);
+        }
+    }
+
+    function setup() {
+        createCanvas(400, 400);
+        init();
+    }
+
+    function draw() {
+        background(255);
+
+        step();
+
+        tmp = createVector(0, 0);
+        
+        for(let i = 0; i < p.N; i++) {
+
+            noStroke();
+            fill(colors[i]);
+            circle(pos[i].x, pos[i].y, p.R);
+
+            stroke(100,0,0);
+            fill(250,0,0);
+            tmp.set(f[i]).mult(p.display.f_scale).add(pos[i]);
+            line(pos[i].x, pos[i].y, tmp.x, tmp.y);
+            arrowHead(tmp, f[i]);
+        }
+    }
+</script>
+</script>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/picnic">
+   </head>
+<body>
+    <div class="flex">
+        <div id="sim"></div>
+        <div class="card" style="padding: 16px; margin: 16px">
+            <div>
+                <span style="color:magenta">Distal</span>-<span style="color:magenta">Distal</span> attraction:
+                <div>
+                    <input type="range" id="aDD" min="0" max="0.4" step="0.01" value="0.4">
+                    
+                </div>
+
+                <span style="color:magenta">Distal</span>-<span style="color:green">Proximal</span> attraction:
+                <div>
+                    <input type="range" id="aDP" min="0" max="0.4" step="0.01" value="0.2">
+                </div>
+
+                <span style="color:green">Proximal</span>-<span style="color:green">Proximal</span> attraction:
+                <div>
+                    <input type="range" id="aPP" min="0" max="0.4" step="0.01" value="0.1">
+                </div>
+                </div>
+            <div>
+                <button id="restart" class="error">Restart</button>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+
+    function arrowHead(start, vector) {
+        push();
+
+        var norm = createVector(vector.x, vector.y);
+        norm.normalize();
+
+        applyMatrix(
+        norm.x, norm.y,
+        -norm.y, norm.x,
+        start.x,
+        start.y);
+        triangle(0, 6, 12, 0, 0, -6);
+        pop();
+    }
+
+
+
+    let pos = [];
+    let f = [];
+    let type = [];
+    let colors = [
+        [0, 200, 0, 200],
+        [200, 0, 200, 200],
+        [100, 100, 100, 100]
+    ]
+    let center;
+
+    const dt = 0.025;
+    let t = 0.0;
+
+    const p = {
+        rep: 8.0,
+        attract: [0.4, 0.3, 0.1],  // D-D, P-P, D-P
+        R: 50.0,
+        R_attract: 120.0,
+        N: 70,
+        t_end: 64.0,
+        
+        display: {
+            f_scale: 1,
+            width: 500,
+            height: 400,
+            sX: 0.5,
+            sY: 0.5
+        }
+    }
+
+    function init() {
+        center = createVector(p.display.width / p.display.sX, p.display.height / p.display.sY).mult(0.5);
+
+        for(let i = 0; i < p.N; i++) {
+            pos[i] = center.copy().add(p5.Vector.random2D().mult(p.R * 3));
+            f[i] = createVector(0, 0);
+            type[i] = i % 2;
+        }
+    }
+
+
+    function step() {
+        t += dt;
+
+        // reset
+        if( t > p.t_end ) {
+            t = 0.0;
+            init();
+        }
+
+        p.attract[0] = document.querySelector("#aDD").value;
+        p.attract[1] = document.querySelector("#aPP").value;
+        p.attract[2] = document.querySelector("#aDP").value;
+
+        tmp = createVector(0, 0);
+
+        // simulate 
+        for(let i = 0; i < p.N; i++) {
+            f[i].set(0, 0);
+            for(let j = 0; j < p.N; j++) {
+                if(i != j) {
+                    let xij = p5.Vector.sub(pos[i], pos[j]);
+                    let r2 = xij.mag();
+
+                    if( r2 > 1e-6 ) {
+
+                        let overlap = 2 * p.R - r2;
+                        if( overlap > 0) {
+                            tmp.set(xij).mult(overlap * p.rep / r2);
+                            f[i].add(tmp);
+                        }
+
+                        let attr_overlap = 2 * p.R_attract - r2;
+                        if( attr_overlap > 0) {
+                            const at = (type[i] == type[j]) ? type[i] : 2;
+                            f[i].add(xij.mult(-attr_overlap * p.attract[at] / r2));
+                        }
+
+                    }
+                }
+            }
+
+            tmp.set(f[i]).mult(dt);
+            pos[i].add(tmp);
+        }
+    }
+
+    function setup() {
+        var cv = createCanvas(p.display.width, p.display.height);
+        cv.parent("sim")
+        init();
+    }
+
+    function draw() {
+        background(255);
+
+        scale(p.display.sX, p.display.sY);
+
+        step();
+
+        tmp = createVector(0, 0);
+        
+        for(let i = 0; i < p.N; i++) {
+
+            noStroke();
+            fill(colors[type[i]]);
+            circle(pos[i].x, pos[i].y, 2*p.R);
+
+            stroke(100,0,0);
+            fill(250,0,0);
+            tmp.set(f[i]).mult(p.display.f_scale).add(pos[i]);
+            line(pos[i].x, pos[i].y, tmp.x, tmp.y);
+            arrowHead(tmp, f[i]);
+        }
+    }
+
+    document.querySelector("#restart").addEventListener("click", restartButton);
+    function restartButton() {
+        t = p.t_end;
+    }
+</script>
+</script>

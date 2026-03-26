@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html class="dark">
+
+<head>
+  <meta charset="utf-8">
+  <title>sEMTor – The EMT simulator</title>
+  <meta name="description" content="Interactive EMT simulator 
+  acompaning the article: 
+  Modelling variability and heterogeneity of EMT scenarios highlights nuclear positioning 
+  and protrusions as main drivers of extrusion by 
+  Steffen Plunder, Cathy Danesin, Bruno Glise, Marina A Ferreira, Sara Merino Aceituno and Eric Theveneau.
+  ">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="icon" href="data:,">
+</head>
+
+<body class="bg-slate-200 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+  <div class="mx-auto p-4 bg-white dark:bg-slate-900">
+
+
+    <div class="container mx-auto max-w-4xl ">
+      <p class="text-4xl font-semibold mb-4 mt-4 md:mb-8">
+        <a href="/"
+          class="bg-clip-text text-transparent bg-gradient-to-r from-green-500 to-red-500 dark:from-green-400 dark:to-red-400">
+          sEMTor.github.io – The standalone EMT simulator
+      </a>
+      </p>
+
+      <!-- <p class="dark:text-slate-400" text>
+        <span class="italic text-sm">
+          Developed by Steffen Plunder, see the companion article:
+        </span>
+        <br><br>
+        <span class="dark:text-slate-200 font-semibold">
+          Modelling variability and heterogeneity of EMT scenarios highlights nuclear positioning and protrusions as
+          main drivers of extrusion
+        </span>
+        <br>
+        <span class="italic">
+          Steffen Plunder, Cathy Danesin, Bruno Glise, Marina A Ferreira, Sara Merino Aceituno and Eric Theveneau, 2023,
+        </span> <a href="https://www.biorxiv.org/content/10.1101/2023.11.17.567510v1" class="underline">bioRxiv</a>.
+      </p> -->
+      <br>
+
+      <!-- An interactive, agent-based model to simulate epithelial-to-mesenchymal transition-like events in a
+      pseudostratified epithelium. <br>
+      &emsp;The simulation has epithelial <span class="text-green-500 dark:text-green-400">control cells (green)</span>
+      and <span class="text-red-500 dark:text-red-400">experimental cells (red)</span>.
+      Experimental cells can be instructed to perform some or all of the following events in various orders:
+      <ul class="list-item list-inside pl-4">
+        <li>
+          <span class="font-bold italic">→ A</span>&ensp; Loss of apical adhesion (detachment from neighboring apical
+          points).
+        </li>
+        <li>
+          <span class="font-bold italic">→ B</span>&ensp; Loss of basal adhesion (detachment from basal line).
+        </li>
+        <li>
+          <span class="font-bold italic">→ S</span>&ensp; Relaxation of straightness (apical/basal points and nuclei are
+          no longer forced to align).
+        </li>
+        <li>
+          <span class="font-bold italic">→ P</span>&ensp;
+          Protrusive activities (seek-and grab behavior of basal points in direction of the polarity, typically basally,
+          can only occur if B is part of the selected EMT-like scenario).
+        </li>
+      </ul>
+      <br>
+
+      <div class="rounded-lg ring-red-800 ring-2 p-2 mt-2 mb-8 italic">
+        Note: Our scientific conclusions from the model are based on statistics obtained from thousands of simulations
+        of the model shown below. Please note that in some instances, single simulations can differ substantially from
+        the average behavior.
+      </div> -->
+    </div>
+
+    <div class="grid xl:grid-cols-3 md:grid-cols-3 grid-cols-1 max-w-screen-2xl mx-auto">
+      <div class="xl:col-span-2 md:col-span-2">
+        <div class="m-2 mb-0 rounded-lg bg-white p-2 
+        border-slate-200 border-2
+        dark:border-0">
+          <div id="simulation" class="text-slate-800">
+            <div class="mx-auto max-w-2xlw-full relative">
+              <p>
+                <span class="font-semibold italic">Simulation</span>
+                <span class="text-red-800 float-right text-xs font-thin">Apical side (red)
+                </span>
+                <span
+                  class="absolute left-4 top-10 font-bold text-red-800 text-xs md:text-xl bg-red-100 rounded-lg p-2 bg-opacity-50"
+                  id="sim_end" style="display: none;">Simulation
+                  end: Click to restart simulation.</span>
+              </p>
+              <div id="sim_div" class="bg-slate-50 touch-none"></div>
+              <div>
+                <p class="text-slate-800 float-right text-xs font-thin">Basal side (black)</p>
+                <p id="time" class="text-xs font-bold mx-4 font-mono"> Time = 10</p>
+              </div>
+
+              <div class="mx-4 relative text-slate-400 text-xs md:text-base" color="color: #Fff">
+                <span class=""> 0h </span>
+                <span class="left-1/4 absolute text-center"> 12h </span>
+                <span class="left-1/2 absolute text-center"> 24h </span>
+                <span class="left-3/4 absolute text-center"> 36h </span>
+                <span class="right-0 absolute"> 48h </span>
+              </div>
+              <div class="bg-slate-400 h-1 mx-4">
+                <div id="progress_bar" class="bg-slate-800 h-1 mr-auto" style="width:1%"></div>
+                <div class="relative text-xs md:text-base font-bold">
+                  <span style="left: 10%;" class="absolute text-orange-600" id="A_time">A</span>
+                  <span style="left: 20%;" class="absolute text-black" id="B_time">B</span>
+                  <span style="left: 50%;" class="absolute text-blue-600" id="S_time">S</span>
+                </div>
+              </div>
+            </div>
+            <div class="w-full h-2">
+            </div>
+
+            <div class="flex flex-wrap mt-4 justify-center">
+              <div class="pl-2 mb-2 mt-2">
+                <button id="run_button"
+                  class="bg-green-800 hover:bg-green-600 text-white font-medium p-2 rounded-lg text-sm text-center inline-flex items-centerfont-medium">New
+                  simulation</button>
+              </div>
+              <div class="pl-2 mb-2 mt-2">
+                <button id="play_button"
+                  class="bg-indigo-500 hover:bg-indigo-600 text-white font-medium p-2 rounded-lg text-sm text-center inline-flex items-centerfont-medium">Play/Pause</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-b-lg m-2 mt-0 p-2 ring-slate-200 dark:ring-slate-800 ring-2 ring-inset">
+        <div id="parameters" class="container mx-auto">
+          <h2 class="mt-2 text-center font-medium italic">Parameters</h2>
+          <h4 class="mb-2 mt-1 text-center font-extralight text-xs text-slate-600 dark:text-slate-400">
+            (Restart required)</h4>
+
+          <div class="grid sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-1 gap-4">
+            <div class=" dark:bg-slate-800 rounded-lg border-t-2 border-slate-200 dark:border-slate-500">
+              <div class="container text-sm pt-2 w-full min-h-[140px]">
+                <div class="p-1 my-2 text-center">
+                  <p class="pl-2 font-semibold">Number of experimental cells
+                  </p>
+                  <div id="N_homo">
+                    <input id="N_input" type="range" value="2" min="0" max="2"
+                      class="w-3/4 mx-auto mt-2 h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                    <div class="relative w-3/4 mx-auto text-xs mb-4">
+                      <span class="absolute left-0">0</span>
+                      <span class="absolute left-1/2">1</span>
+                      <span class="absolute right-0">11</span>
+                    </div>
+                    <div class="font-extralight text-xs pt-2">
+                      Number of cells undergoing EMT-like events.
+                    </div>
+                  </div>
+                  <div id="N_hetero" style="display: none;">
+                    <div class="mt-2">
+                      11 (heterogeneous) EMT cells
+                    </div>
+                    <div class="font-extralight text-xs pt-2">
+                      Number of cells undergoing EMT. Disable heterogeneity to
+                      enable the selection of zero or one EMT cells.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class=" dark:bg-slate-800 rounded-lg border-t-2 border-slate-200 dark:border-slate-500">
+              <div class="container text-sm pt-2 w-full  min-h-[140px]">
+                <div class="p-1 my-2 text-center">
+                  <div id="INM_hetero" style="display: none;">
+                    <p class="pl-2 font-semibold">Interkinetic nuclear movements
+                    </p>
+                    <input id="INM_input_hetero" type="range" value="" min="0" max="2"
+                      class="w-3/4 mx-auto mt-2 h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                    <div class="relative w-3/4 mx-auto text-xs mb-4">
+                      <span class="absolute left-0">none</span>
+                      <span class="absolute right-0">100%</span>
+                    </div>
+                    <div class="font-extralight text-xs">
+                      Determines probability that nuclei of experimental cells perform pre-mitosis rapid apical movement
+                      (PRAM).
+                    </div>
+                  </div>
+                  <div id="INM_homo">
+                    <p class="pl-2 font-semibold">Interkinetic nuclear movements
+                    </p>
+                    <label class="relative inline-flex items-center cursor-pointer mt-2">
+                      <input type="checkbox" name="Hetero" id="INM_input_homo" class="sr-only peer">
+                      <div
+                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+                      </div>
+                    </label>
+                    <div class="font-extralight text-xs">
+                      Determines if nuclei of experimental cells perform pre-mitosis rapid apical movement (PRAM).
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class=" dark:bg-slate-800 rounded-lg border-t-2 border-slate-200 dark:border-slate-500">
+              <div class="container text-sm pt-2 w-full min-h-[140px]">
+                <div class="p-1 my-2 text-center">
+                  <div id="run_hetero" style="display: none;">
+                    <p class="pl-2 font-semibold">EMT: Protrusions
+                    </p>
+                    <input id="run_input_hetero" type="range" value="2" min="0" max="2"
+                      class="w-3/4 mx-auto mt-2 h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                    <div class="relative w-3/4 mx-auto text-xs mb-4">
+                      <span class="absolute left-0">none</span>
+                      <span class="absolute right-0">100%</span>
+                    </div>
+                    <div class="font-extralight text-xs">
+                      Determines probability that the basal point of experimental cells display a seek-and-grab behavior
+                      (<span class="font-bold italic">P</span>).
+                      This can only occur if the EMT scenario includes <span class="font-bold italic">B</span> (loss of
+                      basal adhesion).
+                    </div>
+                  </div>
+                  <div id="run_homo">
+                    <p class="pl-2 font-semibold">EMT: Protrusions
+                    </p>
+                    <label class="relative inline-flex items-center cursor-pointer mt-2">
+                      <input type="checkbox" name="Hetero" id="run_input_homo" class="sr-only peer">
+                      <div
+                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+                      </div>
+                    </label>
+                    <div class="font-extralight text-xs">
+                      Determines if the basal point of experimental cells display a seek-and-grab behavior (<span
+                        class="font-bold italic">P</span>).
+                      This can only occur if the EMT scenario includes <span class="font-bold italic">B</span> (loss of
+                      basal adhesion).
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="dark:bg-slate-800 rounded-lg  border-t-2 border-slate-200 dark:border-slate-500">
+              <div class="container text-sm pt-2">
+                <div class="p-1 my-2">
+                  <div class="w-full text-center">
+                    <div class="">
+                      <div class="pl-2 font-semibold pb-2">Heterogeneity
+                      </div>
+                      <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="Hetero" id="hetero_input" class="sr-only peer">
+                        <div
+                          class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+                        </div>
+                      </label>
+                    </div>
+                    <div class="font-extralight text-xs">
+                      If checked, each experimental cell randomly picks an EMT-like scenario.
+                      Then users can set the probability of INM and Protrusions to 0, 50 or 100%.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="dark:bg-slate-800 rounded-lg  border-t-2 border-slate-200 dark:border-slate-500">
+              <div class="container text-sm pt-2">
+                <div class="p-1 my-2  min-h-[120px]">
+                  <div class="flex flex-wrap justify-center text-center">
+                    <div id="scenario_div_homo">
+                      <div>
+                        <!--
+                                                  class="text-white bg-slate-800 hover:bg-slate-600 focus:ring-4 focus:outline-none focus:ring-slate-800 font-medium rounded-lg text-sm text-center inline-flex items-center">
+                                                -->
+                        <label data-te-select-init-ref class="pl-2 font-semibold">
+                          EMT-like scenarios
+                        </label>
+                        <select data-te-select-init id="EMT_scenario">
+                          <!--<option value="[0,0,0]">no EMT  </option>-->
+                          <option value="[12,0,0]">A</option>
+                          <option value="[0,12,0]">B</option>
+                          <option value="[0,0,12]">S</option>
+                          <option value="[9,15,0]">AB</option>
+                          <option value="[15,9,0]">BA</option>
+                          <option value="[9,0,15]">AS</option>
+                          <option value="[15,0,9]">SA</option>
+                          <option value="[0,9,15]">BS</option>
+                          <option value="[0,15,9]">SB</option>
+                          <option value="[9,15,21]" selected>ABS</option>
+                          <option value="[9,21,15]">ASB</option>
+                          <option value="[15,9,21]">BAS</option>
+                          <option value="[21,9,15]">BSA</option>
+                          <option value="[15,21,9]">SAB</option>
+                          <option value="[21,15,9]">SBA</option>
+                        </select>
+                      </div>
+                      <div class="font-extralight text-xs pt-2">
+                        Determines which EMT-like scenario experimental cells will perform.
+                      </div>
+                    </div>
+                    <div id="scenario_div_hetero" style="display: none;">
+                      <div class="pl-2 font-semibold">
+                        EMT scenario
+                      </div>
+                      <div class="mt-2">
+                        Random EMT scenario per cell
+                      </div>
+                      <div class="font-extralight text-xs pt-2">
+                        For heterogeneous EMT, each cell selects randomly if A, B, S are occuring.
+                        Disable heterogeneity to select a specific EMT scenario.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container mx-auto max-w-xl">
+
+    <div class="rounded-b-lg m-2 mt-0 p-2 ">
+
+      <h2 class="mt-2 text-center font-medium italic">EMT scenarios per cell</h2>
+
+      <div class="flex flex-col">
+        <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
+          <div class="inline-block min-w-full py-2 sm:px-6 lg:px-8">
+            <div class="overflow-hidden">
+              <table class="min-w-full text-center text-sm font-light">
+                <thead class="border-b font-medium dark:border-neutral-500">
+                  <tr>
+                    <th scope="col" class="px-6 py-2">#</th>
+                    <th scope="col" class="px-6 py-2">A</th>
+                    <th scope="col" class="px-6 py-2">B</th>
+                    <th scope="col" class="px-6 py-2">S</th>
+                    <th scope="col" class="px-6 py-2">INM</th>
+                    <th scope="col" class="px-6 py-2">Protrusions</th>
+                  </tr>
+                </thead>
+                <tbody id="timing_table">
+                  <tr class="border-b dark:border-neutral-500 text-sm">
+                    <td class="px-6 py-2 font-medium">1</td>
+                    <td class="px-6 py-2">10h</td>
+                    <td class="px-6 py-2">18h</td>
+                    <td class="px-6 py-2">none</td>
+                    <td class="px-6 py-2">Yes</td>
+                    <td class="px-6 py-2">Yes</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script type="text/javascript" src="../js/p5.min.js"></script>
+  <script type="text/javascript" src="../js/tw-elements.umd.min.js"></script>
+  <script type="text/javascript" src="../js/simulation.js"></script>
+  <script type="text/javascript" src="interface.js"></script>
+</body>
+
+</html>

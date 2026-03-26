@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.js"></script>
+</head>
+<body>
+</body>
+<script>
+    function arrowHead(start, vector) {
+        push();
+
+        var norm = createVector(vector.x, vector.y);
+        norm.normalize();
+
+        applyMatrix(
+        norm.x, norm.y,
+        -norm.y, norm.x,
+        start.x,
+        start.y);
+        triangle(0, 6, 12, 0, 0, -6);
+        pop();
+    }
+
+
+
+    let pos = [];
+    let f = [];
+    let pl = [];
+    let type = [];
+    let colors = [
+        [200, 0, 200, 200],
+        [0, 200, 0, 200],
+        [100, 100, 100, 100]
+    ]
+    let center;
+
+    const dt = 0.05;
+    let t = 0.0;
+
+    const p = {
+        rep: 8.0,
+        attract: [0.2, 0.4, 0.1],
+        R: 50.0,
+        R_attract: 0.0,
+        N: 10,
+        t_end: 16.0,
+        noise: .1,
+        self_prop: 20.0,
+        boundary: 200,
+        
+        display: {
+            f_scale: 1,
+            width: 400,
+            height: 400,
+            sX: 1.0,
+            sY: 1.0
+        }
+    }
+
+    function init() {
+        center = createVector(p.display.width / p.display.sX, p.display.height / p.display.sY).mult(0.5);
+
+        for(let i = 0; i < p.N; i++) {
+            pos[i] = center.copy().add(p5.Vector.random2D().mult(p.R * 3));
+            f[i] = createVector(0, 0);
+            pl[i] = p5.Vector.random2D();
+            type[i] = i % 2;
+        }
+    }
+
+    function step() {
+        t += dt;
+
+        // reset
+        if( t > p.t_end ) {
+            t = 0.0;
+            init();
+        }
+
+        tmp = createVector(0, 0);
+
+        // simulate 
+        for(let i = 0; i < p.N; i++) {
+            f[i].set(0, 0);
+
+            f[i].set(pl[i]).mult(p.self_prop);
+            pl[i].rotate(random(-p.noise, p.noise));
+
+            for(let j = 0; j < p.N; j++) {
+                if(i != j) {
+                    let xij = p5.Vector.sub(pos[i], pos[j]);
+                    let r2 = xij.mag();
+
+                    if( r2 > 1e-6 ) {
+
+                        let overlap = 2 * p.R - r2;
+                        if( overlap > 0) {
+                            tmp.set(xij).mult(overlap * p.rep / r2);
+                            f[i].add(tmp);
+                        }
+
+                        let attr_overlap = 2 * p.R_attract - r2;
+                        if( attr_overlap > 0) {
+                            const at = (type[i] == type[j]) ? type[i] : 2;
+                            f[i].add(xij.mult(-attr_overlap * p.attract[at] / r2));
+                        }
+
+                    }
+                }
+            }
+
+            tmp.set(f[i]).mult(dt);
+            pos[i].add(tmp);
+
+            if( pos[i].x > p.display.width + p.boundary ) {
+                pos[i].x = p.display.width + p.boundary;
+            }
+            if( pos[i].x < 0 ) {
+                pos[i].x = 0;
+            }
+            if( pos[i].y > p.display.height + p.boundary) {
+                pos[i].y = p.display.height + p.boundary;
+            }
+            if( pos[i].y < 0 ) {
+                pos[i].y = 0;
+            }
+        }
+    }
+
+    function setup() {
+        createCanvas(p.display.width, p.display.height);
+        init();
+    }
+
+    function draw() {
+        background(255);
+
+        scale(p.display.sX, p.display.sY);
+
+        step();
+
+        tmp = createVector(0, 0);
+        
+        for(let i = 0; i < p.N; i++) {
+
+            noStroke();
+            fill(colors[type[i]]);
+            circle(pos[i].x, pos[i].y, 2*p.R);
+
+            stroke(0,0,255);
+            fill(0,0,255);
+            tmp.set(pl[i]).mult(p.R).add(pos[i]);
+            line(pos[i].x, pos[i].y, tmp.x, tmp.y);
+            arrowHead(tmp, pl[i]);
+
+            stroke(100,0,0);
+            fill(250,0,0);
+            tmp.set(f[i]).mult(p.display.f_scale).add(pos[i]);
+            line(pos[i].x, pos[i].y, tmp.x, tmp.y);
+            arrowHead(tmp, f[i]);
+
+
+        }
+    }
+</script>
+</script>
